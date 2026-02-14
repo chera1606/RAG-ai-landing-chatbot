@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASTU AI Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav>
+    <a href="/" class="logo"><i class="fas fa-robot"></i> ASTU Helper</a>
+    <div class="nav-links">
+      <!-- Visible only when logged in -->
+      <div id="auth-nav" class="hidden" style="display: flex; gap: 20px; align-items: center">
+        <a href="/admin">Dashboard</a>
+        <button id="signout-btn" class="btn" style="color: #ef4444; background: none;">Sign Out</button>
+      </div>
+      <!-- Visible only when logged out -->
+      <a href="/login" id="login-link" class="btn btn-primary">Sign In</a>
+    </div>
+  </nav>
+
+  <main>
+    <%- body %>
+  </main>
+
+  <script src="/js/auth.js"></script>
+</body>
+</html>

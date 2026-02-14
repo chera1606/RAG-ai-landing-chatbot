@@ -1,0 +1,55 @@
+<section class="container" style="text-align: center; padding-top: 4rem;">
+  <h1 style="font-size: 3.5rem; margin-bottom: 1.5rem;">
+    ASTU's Helper <br />
+    <span
+      style="background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">AI
+      Chatbot</span>
+  </h1>
+  <p style="font-size: 1.25rem; color: #6b7280; max-width: 600px; margin: 0 auto 2rem;">
+    Get instant answers from your university documents. Powered by Gemini RAG technology.
+  </p>
+  <button id="start-chat-btn" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem; border: none;">Start
+    Chatting</button>
+</section>
+
+<!-- Chat Widget -->
+<div id="chat-widget">
+  <div id="chat-trigger"><i class="fas fa-comment-dots"></i></div>
+  <div id="chat-window" class="hidden">
+    <div class="chat-header">
+      <div>
+        <p style="font-weight: bold; margin: 0;">ASTU Bot</p>
+        <small style="opacity: 0.9;">Online</small>
+      </div>
+      <i class="fas fa-times" id="close-chat" style="cursor: pointer;"></i>
+    </div>
+    <div id="chat-body">
+      <div class="msg ai">
+        Hello! I can answer questions about ASTU documents. How can I help?
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div id="typing-indicator" class="hidden" style="padding: 0 15px 10px;">
+      <div class="typing">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <form id="chat-form"
+      style="padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white;">
+      <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off"
+        style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none;" />
+      <button type="submit"
+        style="background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/chat.js"></script>
+
+<script src="/js/chat.js"></script>
