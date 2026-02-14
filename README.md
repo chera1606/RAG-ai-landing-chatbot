@@ -88,32 +88,6 @@ git clone https://github.com/chera1606/RAG-ai-landing-chatbot.git
 cd RAG-ai-landing-chatbot
 ```
 
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-`
-
-### 4. MongoDB Atlas Vector Search Setup
-
-1. Create a MongoDB Atlas cluster
-2. Enable **Vector Search** on your cluster
-3. Create a search index with the following configuration:
-
-```json
-{
-  "fields": [
-    {
-      "type": "vector",
-      "path": "embedding",
-      "numDimensions": 768,
-      "similarity": "cosine"
-    }
-  ]
-}
-```
 
 ### 5. Start the Application
 
