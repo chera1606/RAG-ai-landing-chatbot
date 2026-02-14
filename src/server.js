@@ -61,10 +61,13 @@ ConnectDB();
 // ================================
 // MIDDLEWARE
 // ================================
+import passport from "./config/passport.js";
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(passport.initialize());
 
 // ================================
 // VIEW ENGINE

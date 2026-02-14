@@ -1,4 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Check for URL query params (from OAuth redirect)
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlToken = urlParams.get("token");
+  const urlUser = urlParams.get("user");
+
+  if (urlToken && urlUser) {
+    localStorage.setItem("token", urlToken);
+    try {
+      localStorage.setItem("user", decodeURIComponent(urlUser));
+      const userObj = JSON.parse(decodeURIComponent(urlUser));
+      localStorage.setItem("role", userObj.role);
+    } catch (e) {
+      console.error("Error parsing user data", e);
+    }
+    // Clean URL
+    window.history.replaceState({}, document.title, "/");
+    // Reload to apply auth state
+    window.location.reload();
+    return; // Stop execution to reload
+  }
+
   const token = localStorage.getItem("token");
   const authNav = document.getElementById("auth-nav");
   const loginLink = document.getElementById("login-link");
@@ -29,7 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Admin Check
+  // Admin Check (REMOVED: Now all users can access dashboard)
+  /*
   if (path === "/admin") {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (!token || user.role !== "admin") {
@@ -37,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "/";
     }
   }
+  */
 
   // 2. Login Logic
   const loginForm = document.getElementById("loginForm");

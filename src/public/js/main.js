@@ -35,11 +35,13 @@ function checkAuthState() {
       window.location.href = "/";
     }
 
-    // Role-Based Authorization for Admin Page
+    // Role-Based Authorization (REMOVED: Now all users can access dashboard)
+    /*
     if (path === "/admin" && userRole !== "admin") {
       alert("Access Denied: You do not have admin privileges.");
       window.location.href = "/";
     }
+    */
 
     // Update UI for logged-in state
     toggleNavLinks(true);
@@ -63,11 +65,9 @@ function toggleNavLinks(isLoggedIn) {
     if (registerLink) registerLink.classList.add("hidden");
     if (logoutBtn) logoutBtn.classList.remove("hidden");
 
-    // Only show Admin link if role is admin
-    if (adminLink && role === "admin") {
+    // Show Admin/Dashboard link for ALL logged-in users
+    if (adminLink) {
       adminLink.classList.remove("hidden");
-    } else if (adminLink) {
-      adminLink.classList.add("hidden");
     }
   } else {
     if (loginLink) loginLink.classList.remove("hidden");

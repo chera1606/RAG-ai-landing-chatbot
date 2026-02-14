@@ -9,7 +9,10 @@ export const ConnectDB = async () => {
       throw new Error("MONGO_DB variable is missing in .env file!");
     }
 
-    const conn = await mongoose.connect(uri);
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
     console.log(`✅ DATABASE CONNECTED: ${conn.connection.host}`);
   } catch (error) {
     console.error(`❌ DATABASE ERROR: ${error.message}`);

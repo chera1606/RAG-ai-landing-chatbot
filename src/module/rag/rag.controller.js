@@ -11,7 +11,7 @@ export const ragController = {
       res.setHeader("Transfer-Encoding", "chunked");
 
       // Call the service
-      await ragService.streamChat(query, res);
+      await ragService.streamChat(query, userId, conversationId, res);
     } catch (error) {
       console.error("Controller Error:", error);
       res.status(500).json({ error: error.message });
