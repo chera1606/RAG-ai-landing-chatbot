@@ -4,13 +4,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginLink = document.getElementById("login-link");
   const signoutBtn = document.getElementById("signout-btn");
 
-  // 1. Navbar Visibility
+  // 1. Auth & Route Protection
+  const path = window.location.pathname;
+  const publicRoutes = ["/login", "/register", "/auth/login", "/auth/register"];
+  const isPublicRoute = publicRoutes.some(r => path.startsWith(r));
+
   if (token) {
+    // User is logged in
     if (authNav) authNav.classList.remove("hidden");
     if (loginLink) loginLink.classList.add("hidden");
+
+    // Redirect to home if on login/register page
+    if (path === "/login" || path === "/register") {
+      window.location.href = "/";
+    }
   } else {
+    // User is NOT logged in
     if (authNav) authNav.classList.add("hidden");
     if (loginLink) loginLink.classList.remove("hidden");
+
+    // Redirect to login if on protected page (including landing page)
+    if (!isPublicRoute) {
+      window.location.href = "/login";
+    }
+  }
+
+  // Admin Check
+  if (path === "/admin") {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!token || user.role !== "admin") {
+      alert("Access Denied");
+      window.location.href = "/";
+    }
   }
 
   // 2. Login Logic
