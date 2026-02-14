@@ -1,15 +1,21 @@
-<section class="container" style="text-align: center; padding-top: 4rem;">
-  <h1 style="font-size: 3.5rem; margin-bottom: 1.5rem;">
-    ASTU's Helper <br />
-    <span
-      style="background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">AI
-      Chatbot</span>
-  </h1>
-  <p style="font-size: 1.25rem; color: #6b7280; max-width: 600px; margin: 0 auto 2rem;">
-    Get instant answers from your university documents. Powered by Gemini RAG technology.
-  </p>
-  <button id="start-chat-btn" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem; border: none;">Start
-    Chatting</button>
+<section class="container" style="text-align: center; padding: 8rem 2rem 6rem;">
+  <div class="fade-in">
+    <h1 style="font-size: 4rem; margin-bottom: 2rem; letter-spacing: -0.02em;">
+      Elevate Your University <br />
+      <span
+        style="background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">Knowledge
+        Experience</span>
+    </h1>
+    <p style="font-size: 1.4rem; color: var(--text-light); max-width: 700px; margin: 0 auto 3rem;">
+      The intelligent RAG assistant designed for ASTU students and faculty. Get precise answers from official documents
+      in seconds.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <button id="start-chat-btn" class="btn btn-primary" style="padding: 16px 42px; font-size: 1.1rem;">
+        Get Started <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+      </button>
+    </div>
+  </div>
 </section>
 
 <!-- Chat Widget -->
@@ -42,12 +48,13 @@
 
       <div id="chat-body">
         <div class="msg ai">
-          Hello! I can answer questions about ASTU documents. How can I help?
+          Hello! 👋 I'm your AI assistant. I can answer questions about our website, services, and uploaded documents.
+          How can I help you today?
         </div>
       </div>
 
       <!-- Typing Indicator -->
-      <div id="typing-indicator" class="hidden" style="padding: 0 15px 10px;">
+      <div id="typing-indicator" class="hidden typing-indicator-wrapper">
         <div class="typing">
           <div class="dot"></div>
           <div class="dot"></div>
@@ -55,12 +62,9 @@
         </div>
       </div>
 
-      <form id="chat-form"
-        style="padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white;">
-        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off"
-          style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none;" />
-        <button type="submit"
-          style="background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+      <form id="chat-form" class="chat-form">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Type your message..." autocomplete="off" />
+        <button type="submit" class="chat-send-btn">
           <i class="fas fa-paper-plane"></i>
         </button>
       </form>

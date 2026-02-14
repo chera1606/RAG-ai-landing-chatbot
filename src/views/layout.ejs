@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,10 +11,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
   <nav>
     <a href="/" class="logo"><i class="fas fa-robot"></i> ASTU Helper</a>
     <div class="nav-links">
+      <button id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
+        <i class="fas fa-moon"></i>
+        <i class="fas fa-sun"></i>
+      </button>
       <!-- Visible only when logged in -->
       <div id="auth-nav" class="hidden" style="display: flex; gap: 20px; align-items: center">
         <a href="/admin">Dashboard</a>
@@ -28,6 +34,14 @@
     <%- body %>
   </main>
 
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2026 ASTU AI Helper. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="/js/theme.js"></script>
   <script src="/js/auth.js"></script>
 </body>
+
 </html>

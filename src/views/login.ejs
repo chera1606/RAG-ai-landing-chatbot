@@ -1,41 +1,51 @@
-<div class="form-container">
-  <div style="text-align: center; margin-bottom: 2rem;">
-    <h2 style="color: var(--primary); font-size: 2rem;">Welcome Back</h2>
-    <p style="color: #6b7280;">Sign in to continue</p>
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon">
+        <i class="fas fa-robot"></i>
+      </div>
+      <h2>Welcome Back</h2>
+      <p>Sign in to continue your journey</p>
+    </div>
+
+    <div id="error-msg" class="auth-error"></div>
+
+    <form id="login-form" class="auth-form">
+      <div class="input-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i>
+          Email Address
+        </label>
+        <input type="email" id="email" placeholder="name@example.com" required />
+      </div>
+
+      <div class="input-group">
+        <label for="password">
+          <i class="fas fa-lock"></i>
+          Password
+        </label>
+        <input type="password" id="password" placeholder="••••••••" required />
+      </div>
+
+      <button type="submit" class="btn btn-primary auth-submit">
+        <span>Sign In</span>
+        <i class="fas fa-arrow-right"></i>
+      </button>
+
+      <div class="divider">
+        <span>OR</span>
+      </div>
+
+      <a href="/api/auth/google" class="btn-google">
+        <i class="fab fa-google"></i>
+        <span>Continue with Google</span>
+      </a>
+    </form>
+
+    <p class="auth-footer">
+      New here? <a href="/register">Create an account</a>
+    </p>
   </div>
-
-  <div id="error-msg" class="error-msg"
-    style="color: #b91c1c; background: #fef2f2; padding: 10px; border-radius: 6px; margin-bottom: 1rem; display: none;">
-  </div>
-
-  <form id="login-form">
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" id="email" placeholder="name@example.com" required />
-    </div>
-
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="••••••••" required />
-    </div>
-
-    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
-
-    <div style="display: flex; align-items: center; margin: 1.5rem 0;">
-      <div style="flex: 1; height: 1px; background: #e5e7eb;"></div>
-      <span style="padding: 0 10px; color: #9ca3af; font-size: 0.9rem;">OR</span>
-      <div style="flex: 1; height: 1px; background: #e5e7eb;"></div>
-    </div>
-
-    <a href="/api/auth/google" class="btn"
-      style="width: 100%; background: white; border: 1px solid #d1d5db; color: #374151; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s;">
-      <i class="fab fa-google" style="color: #db4437;"></i> Sign in with Google
-    </a>
-  </form>
-
-  <p style="text-align: center; margin-top: 1.5rem; color: #6b7280;">
-    New here? <a href="/register" style="color: var(--primary); font-weight: 600;">Create an account</a>
-  </p>
 </div>
 <script>
   document.getElementById('login-form').addEventListener('submit', async (e) => {
