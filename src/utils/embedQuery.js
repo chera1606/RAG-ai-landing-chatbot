@@ -1,4 +1,4 @@
-import { genAI } from "../config/genAI.js";
+import { client } from "../config/genAI.js";
 
 export const embedGeneratedQuery = async (query) => {
     try {
@@ -9,13 +9,10 @@ export const embedGeneratedQuery = async (query) => {
             };
         }
 
-        const response = await genAI.models.embedContent({
-            model: "gemini-embedding-001",
-            contents: [query],
-            config: { taskType: "RETRIEVAL_QUERY" }
-        });
+        const model = client.getGenerativeModel({ model: "gemini-embedding-001" });
+        const result = await model.embedContent(query);
 
-        if (!response?.embeddings?.[0]?.values) {
+        if (!result?.embedding?.values) {
             return {
                 success: false,
                 error: "Failed to generate query embedding"
@@ -24,7 +21,7 @@ export const embedGeneratedQuery = async (query) => {
 
         return {
             success: true,
-            vector: response.embeddings[0].values
+            vector: result.embedding.values
         };
 
     } catch (error) {

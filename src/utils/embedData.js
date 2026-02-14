@@ -7,7 +7,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function getGeminiEmbedding(textOrChunks) {
   try {
-    const model = genAI.getGenerativeModel({ model: "embedding-001" });
+    const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
 
     if (Array.isArray(textOrChunks)) {
       const responses = [];

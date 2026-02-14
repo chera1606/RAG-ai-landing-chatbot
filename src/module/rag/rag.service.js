@@ -47,6 +47,10 @@ export const ragService = {
           try {
             return await fn();
           } catch (err) {
+            // If rate limited, don't retry - fail fast to show message
+            if (err.message.includes("429") || err.message.includes("Quota")) {
+              throw err;
+            }
             if (i === retries - 1) throw err;
             console.warn(`[RAG] Attempt ${i + 1} failed, retrying...`, err.message);
             await new Promise(r => setTimeout(r, 1000 * (i + 1)));
@@ -79,7 +83,7 @@ export const ragService = {
         apiKey: process.env.GEMINI_API_KEY,
         modelName: "gemini-2.5-flash",
         streaming: true,
-        maxRetries: 3, // Built-in LangChain retry
+        maxRetries: 0, // Built-in LangChain retry
       });
 
       const messages = [
@@ -126,8 +130,18 @@ export const ragService = {
       }
 
     } catch (error) {
-      console.error("RAG ERROR:", error); // Log full error object
-      if (!res.writableEnded) res.write("Error: " + error.message);
+      if (error.message.includes("429") || error.message.includes("Quota")) {
+        console.warn("⚠️ Rate Limit Exceeded - Notifying User (Check Usage at ai.dev/rate-limit)");
+      } else {
+        console.error("RAG ERROR:", error);
+      }
+
+      let msg = "Error: " + error.message;
+      if (error.message.includes("429") || error.message.includes("Quota")) {
+        msg = "⚠️ Rate Limit Exceeded: You are sending messages too fast. Please wait a minute.";
+      }
+
+      if (!res.writableEnded) res.write(msg);
       res.end();
     }
   },

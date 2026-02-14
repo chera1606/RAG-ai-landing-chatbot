@@ -1,4 +1,4 @@
-import { genAI } from "../config/genAI.js";
+import { generateResponse } from "../config/genAI.js";
 
 export const summarizeResponse = async (query, context) => {
     try {
@@ -9,31 +9,29 @@ export const summarizeResponse = async (query, context) => {
             };
         }
 
-        const response = await genAI.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `
+        const prompt = `
             You are an expert assistant for Adama Science and Technology University (ASTU).
-Answer the user's question using ONLY the provided data.
+            Answer the user's question using ONLY the provided data.
 
-Rules:
-- Plain text only
-- No formatting, lists, or symbols
-- Clear and concise sentences
-- Do not add or guess information
-- Give Clear explanation
+            Rules:
+            - Plain text only
+            - No formatting, lists, or symbols
+            - Clear and concise sentences
+            - Do not add or guess information
+            - Give Clear explanation
 
-Question:
-${query}
+            Question:
+            ${query}
 
-Data:
-${context}
-      `
-        });
+            Data:
+            ${context}
+        `;
 
+        const text = await generateResponse(prompt);
 
         return {
             success: true,
-            finalResponse: response.text
+            finalResponse: text
         };
 
     } catch (err) {
