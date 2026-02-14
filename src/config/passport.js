@@ -14,9 +14,9 @@ passport.use(
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
-                console.log("🔥 Passport Callback Triggered");
-                console.log("Profile ID:", profile.id);
-                console.log("Profile Email:", profile.emails?.[0]?.value);
+                // console.log("🔥 Passport Callback Triggered");
+                // console.log("Profile ID:", profile.id);
+                // console.log("Profile Email:", profile.emails?.[0]?.value);
 
                 // Check if user exists
                 let user = await User.findOne({ googleId: profile.id });

@@ -4,15 +4,31 @@ import mongoose from "mongoose";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { Conversation } from "./chat.model.js";
 
+const queryCache = new Map();
+
+// Configuration for models
+const PRIMARY_MODEL = "gemini-flash-latest";
+const FALLBACK_MODEL = "gemini-pro-latest";
+const EMBEDDING_MODEL = "gemini-embedding-001";
+
 export const ragService = {
   async streamChat(query, userId, conversationId, res) {
     let conversation;
     try {
-      // 1. Get or Create Conversation
+      // 1. Check Cache
+      const cacheKey = `${userId}:${query}`;
+      if (queryCache.has(cacheKey)) {
+        console.log(`[RAG] Cache hit: "${query}"`);
+        const cachedResponse = queryCache.get(cacheKey);
+        res.write(cachedResponse);
+        res.end();
+        return;
+      }
+
+      // 2. Get/Create Conversation
       if (conversationId) {
         conversation = await Conversation.findOne({ _id: conversationId, userId });
       }
-
       if (!conversation) {
         conversation = new Conversation({
           userId,
@@ -21,15 +37,39 @@ export const ragService = {
         });
       }
 
-      // 2. Save User Message
+      // 3. Save User Message
       conversation.messages.push({ role: "user", content: query });
       await conversation.save();
 
       const collection = mongoose.connection.db.collection("documents");
 
+      // Shared Config
+      const genAIConfig = { apiKey: process.env.GEMINI_API_KEY };
+
+      // Helper for retries with exponential backoff & jitter
+      const withRetry = async (fn, retries = 5) => {
+        for (let i = 0; i < retries; i++) {
+          try {
+            return await fn();
+          } catch (err) {
+            const isRateLimit = err.message.includes("429") || err.message.includes("Quota");
+            if (i === retries - 1) throw err;
+
+            // Exponential backoff: 2s, 4s, 8s, 16s, 32s + jitter
+            const baseWait = isRateLimit ? Math.pow(2, i + 1) * 1000 : 1000;
+            const jitter = Math.random() * 1000;
+            const waitTime = baseWait + jitter;
+
+            console.warn(`[RAG] ${isRateLimit ? 'Rate limit' : 'Error'} (Attempt ${i + 1}). Retrying in ${(waitTime / 1000).toFixed(1)}s...`);
+            await new Promise(r => setTimeout(r, waitTime));
+          }
+        }
+      };
+
+      // 4. Retrieval with Stable Embeddings
       const embeddings = new GoogleGenerativeAIEmbeddings({
-        apiKey: process.env.GEMINI_API_KEY,
-        modelName: "gemini-embedding-001",
+        ...genAIConfig,
+        modelName: EMBEDDING_MODEL,
       });
 
       const vectorStore = new MongoDBAtlasVectorSearch(embeddings, {
@@ -39,109 +79,70 @@ export const ragService = {
         embeddingKey: "embedding",
       });
 
-      console.log(`[RAG] Query: "${query}" | User: ${userId}`);
+      console.log(`[RAG] Query: "${query}" | Models: ${PRIMARY_MODEL} / ${EMBEDDING_MODEL}`);
 
-      // Helper for retries
-      const withRetry = async (fn, retries = 3) => {
-        for (let i = 0; i < retries; i++) {
-          try {
-            return await fn();
-          } catch (err) {
-            // If rate limited, don't retry - fail fast to show message
-            if (err.message.includes("429") || err.message.includes("Quota")) {
-              throw err;
-            }
-            if (i === retries - 1) throw err;
-            console.warn(`[RAG] Attempt ${i + 1} failed, retrying...`, err.message);
-            await new Promise(r => setTimeout(r, 1000 * (i + 1)));
-          }
-        }
-      };
-
-      // Retrieve top 3 relevant chunks
       const docs = await withRetry(() => vectorStore.asRetriever(3).invoke(query));
-      console.log(`[RAG] Docs found: ${docs?.length || 0}`);
 
-      // Strict RAG: If no docs found, return fallback
       if (!docs || docs.length === 0) {
-        console.warn("[RAG] No documents found. Sending fallback.");
-        const fallback = "I actually don't know the answer to that based on the available documents.";
+        const fallback = "I don't have enough information in my database to answer that correctly.";
         res.write(fallback);
         res.end();
-
-        // Save Fallback Message
         conversation.messages.push({ role: "assistant", content: fallback });
         await conversation.save();
         return;
       }
 
-      const contextText = [
-        ...new Set(docs.map((d) => d.pageContent.trim())),
-      ].join("\n\n");
+      const contextText = [...new Set(docs.map((d) => d.pageContent.trim()))].join("\n\n");
 
-      const chatModel = new ChatGoogleGenerativeAI({
-        apiKey: process.env.GEMINI_API_KEY,
-        modelName: "gemini-2.5-flash",
-        streaming: true,
-        maxRetries: 0, // Built-in LangChain retry
-      });
+      // 5. Generation with Model Failover
+      const generateResponse = async (modelName) => {
+        const chatModel = new ChatGoogleGenerativeAI({
+          ...genAIConfig,
+          modelName: modelName,
+          streaming: true,
+          maxRetries: 0,
+        });
 
-      const messages = [
-        new SystemMessage(
-          `You are an AI assistant for ASTU. You must answer ONLY based on the provided context. 
-            If the answer is not in the context, say "I don't have enough information to answer that." 
-            Do not make up facts.
-            
-            Context:
-            ${contextText}`
-        ),
-        new HumanMessage(query),
-      ];
+        const messages = [
+          new SystemMessage(`Answering for ASTU. ONLY use provided context. If unknown, say you don't know.\n\nContext:\n${contextText}`),
+          new HumanMessage(query),
+        ];
 
-      console.log("[RAG] Starting stream...");
-      const stream = await withRetry(() => chatModel.stream(messages));
+        return await chatModel.stream(messages);
+      };
+
+      let stream;
+      try {
+        console.log(`[RAG] Requesting Primary: ${PRIMARY_MODEL}`);
+        stream = await withRetry(() => generateResponse(PRIMARY_MODEL), 3);
+      } catch (primaryErr) {
+        console.error(`[RAG] Primary Model Failed: ${PRIMARY_MODEL}. Trying Fallback...`);
+        // Fallback model often has different rate limits
+        stream = await withRetry(() => generateResponse(FALLBACK_MODEL), 3);
+      }
+
       let fullResponse = "";
-
       for await (const chunk of stream) {
-        // console.log("Chunk received:", chunk); // Debug full chunk
         if (chunk?.content) {
-          process.stdout.write("*"); // Log progress char
           res.write(chunk.content);
           fullResponse += chunk.content;
-        } else {
-          console.log("Empty chunk received");
         }
       }
-      console.log("\n[RAG] Response complete.");
       res.end();
 
-      // 4. Save AI Message
-      try {
-        if (mongoose.connection.readyState !== 1) {
-          console.log("[RAG] Connection lost during stream. Reconnecting...");
-          await mongoose.connect(process.env.MONGO_DB);
-        }
-
-        conversation.messages.push({ role: "assistant", content: fullResponse });
-        await conversation.save();
-        console.log("[RAG] Conversation saved successfully.");
-      } catch (saveError) {
-        console.error("[RAG] Failed to save AI response to history:", saveError.message);
-      }
+      // 6. Post-Process
+      queryCache.set(cacheKey, fullResponse);
+      conversation.messages.push({ role: "assistant", content: fullResponse });
+      await conversation.save();
+      console.log("[RAG] Success.");
 
     } catch (error) {
-      if (error.message.includes("429") || error.message.includes("Quota")) {
-        console.warn("⚠️ Rate Limit Exceeded - Notifying User (Check Usage at ai.dev/rate-limit)");
-      } else {
-        console.error("RAG ERROR:", error);
-      }
+      console.error("CRITICAL RAG ERROR:", error.message);
+      const userMsg = error.message.includes("429")
+        ? "⚠️ System is very busy. Please wait 1 minute before your next question."
+        : "⚠️ An unexpected error occurred. Please try again.";
 
-      let msg = "Error: " + error.message;
-      if (error.message.includes("429") || error.message.includes("Quota")) {
-        msg = "⚠️ Rate Limit Exceeded: You are sending messages too fast. Please wait a minute.";
-      }
-
-      if (!res.writableEnded) res.write(msg);
+      if (!res.writableEnded) res.write(userMsg);
       res.end();
     }
   },

@@ -188,8 +188,8 @@ RAG-ai-landing-chatbot/
 
 - **Chunk Size**: 700 characters
 - **Chunk Overlap**: 60 characters
-- **Embedding Model**: Google `text-embedding-004`
-- **LLM Model**: Google Gemini 2.0 Flash
+- **Embedding Model**: Google `gemini-embedding-001`
+- **LLM Model**: Google `gemini-flash-latest` (Primary) / `gemini-pro-latest` (Failover)
 - **Vector Dimensions**: 768
 - **Similarity Metric**: Cosine similarity
 
