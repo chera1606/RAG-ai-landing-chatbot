@@ -94,31 +94,7 @@ cd RAG-ai-landing-chatbot
 npm install
 ```
 
-### 3. Environment Configuration
-
-Create a `.env` file in the root directory:
-
-```env
-# Server Configuration
-PORT=5019
-
-# MongoDB Atlas Connection
-MONGO_DB=your_mongodb_atlas_connection_string
-
-# Google AI API Key
-GEMINI_API_KEY=your_gemini_api_key
-
-# JWT Secret (use a strong random string)
-JWT_SECRET=your_jwt_secret_key
-
-# Session Secret
-SESSION_SECRET=your_session_secret
-
-# Google OAuth (Optional)
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_CALLBACK_URL=http://localhost:5019/api/auth/google/callback
-```
+`
 
 ### 4. MongoDB Atlas Vector Search Setup
 
