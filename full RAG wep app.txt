@@ -1,6 +1,0 @@
-PORT=50l9
-
-MONGO_DB=mongodb+srv://cherinet_db_user:160623@cluster0.6jiguat.mongodb.net/ai_chatbot?appName=Cluster0
-GEMINI_API_KEY=AIzaSyABnFuzyfagyC9WDbTlBGJ2Yf7cppKqYSI
-JWT_SECRET="mySuperSecret123!@#"
-
