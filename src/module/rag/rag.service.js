@@ -41,8 +41,21 @@ export const ragService = {
 
       console.log(`[RAG] Query: "${query}" | User: ${userId}`);
 
+      // Helper for retries
+      const withRetry = async (fn, retries = 3) => {
+        for (let i = 0; i < retries; i++) {
+          try {
+            return await fn();
+          } catch (err) {
+            if (i === retries - 1) throw err;
+            console.warn(`[RAG] Attempt ${i + 1} failed, retrying...`, err.message);
+            await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+          }
+        }
+      };
+
       // Retrieve top 3 relevant chunks
-      const docs = await vectorStore.asRetriever(3).invoke(query);
+      const docs = await withRetry(() => vectorStore.asRetriever(3).invoke(query));
       console.log(`[RAG] Docs found: ${docs?.length || 0}`);
 
       // Strict RAG: If no docs found, return fallback
@@ -66,6 +79,7 @@ export const ragService = {
         apiKey: process.env.GEMINI_API_KEY,
         modelName: "gemini-2.5-flash",
         streaming: true,
+        maxRetries: 3, // Built-in LangChain retry
       });
 
       const messages = [
@@ -81,7 +95,7 @@ export const ragService = {
       ];
 
       console.log("[RAG] Starting stream...");
-      const stream = await chatModel.stream(messages);
+      const stream = await withRetry(() => chatModel.stream(messages));
       let fullResponse = "";
 
       for await (const chunk of stream) {
